@@ -1,0 +1,41 @@
+name: Daily FOFA Mining Pool Fetch
+
+on:
+  schedule:
+    # 每天 UTC 时间 00:00 执行
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 允许在 GitHub 网页上手动触发
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 赋予提交代码的权限
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x' # 使用最新的 Python 3 版本
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: 运行 Python 脚本
+        env:
+          FOFA_KEY: ${{ secrets.FOFA_KEY }} # 从 GitHub Secrets 读取 API Key
+        run: python fetch_pools.py
+
+      - name: 提交并推送到仓库
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add mining_pools.csv
+          # 如果文件没有变化，commit 会失败，所以加上 || exit 0 忽略该报错
+          git commit -m "Auto-update mining pools: $(date +'%Y-%m-%d')" || exit 0
+          git push
