@@ -48,6 +48,11 @@ def main():
                 if len(row) == 3:
                     lastupdatetime, ip, port = row
                     pools_dict[(ip, port)] = lastupdatetime
+                elif len(row) == 2:
+                    lastupdatetime, ip_port = row
+                    if '|' in ip_port:
+                        ip, port = ip_port.split('|', 1)
+                        pools_dict[(ip, port)] = lastupdatetime
 
     # 2. 合并新数据并去重、更新时间
     # 逻辑：以 (ip, port) 作为字典的 key。
@@ -66,7 +71,7 @@ def main():
 
     # 4. 将字典转回列表，过滤掉超过365天的数据，并按时间倒序排序 (最新的排在最上面)
     filtered_pools = [
-        [time, ip, port] for (ip, port), time in pools_dict.items() if time >= cutoff_time
+        [time, f"{ip}|{port}"] for (ip, port), time in pools_dict.items() if time >= cutoff_time
     ]
 
     sorted_pools = sorted(

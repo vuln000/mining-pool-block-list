@@ -15,6 +15,5 @@
 ## Data Format
 
 - `Timestamp`: Data update time (YYYY-MM-DD HH:MM:SS)
-- `IP`: Mining pool IP address
-- `Port`: Mining pool port number
+- `IP|Port`: Mining pool IP address and port number separated by `|`
 
