@@ -8,7 +8,9 @@
 
 ## Updates every day
 
-## [mining\_pools.csv](mining_pools.csv)
+## Life time 365 days
+
+## [Output file :mining\_pools.csv](mining_pools.csv)
 
 ## Data Format
 

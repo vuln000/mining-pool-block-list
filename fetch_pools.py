@@ -2,6 +2,7 @@ import os
 import csv
 import requests
 import sys
+from datetime import datetime, timedelta
 
 # 从环境变量中获取 API KEY，避免硬编码
 API_KEY = os.environ.get("FOFA_KEY")
@@ -60,14 +61,21 @@ def main():
             if key not in pools_dict or lastupdatetime > pools_dict[key]:
                 pools_dict[key] = lastupdatetime
 
-    # 3. 将字典转回列表，并按时间倒序排序 (最新的排在最上面)
+    # 3. 计算365天前的时间点，用于过滤过期数据
+    cutoff_time = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d %H:%M:%S")
+
+    # 4. 将字典转回列表，过滤掉超过365天的数据，并按时间倒序排序 (最新的排在最上面)
+    filtered_pools = [
+        [time, ip, port] for (ip, port), time in pools_dict.items() if time >= cutoff_time
+    ]
+
     sorted_pools = sorted(
-        [[time, ip, port] for (ip, port), time in pools_dict.items()],
+        filtered_pools,
         key=lambda x: x[0],
         reverse=True
     )
 
-    # 4. 将最终结果覆写回 CSV 文件
+    # 5. 将最终结果覆写回 CSV 文件
     with open(OUTPUT_FILE, mode='w', encoding='utf-8', newline='') as f:
         writer = csv.writer(f)
         writer.writerows(sorted_pools)
